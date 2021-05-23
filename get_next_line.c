@@ -1,38 +1,103 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include "get_next_line.h"
+
+size_t	ft_strlen(char *str)
+{
+	size_t	count;
+
+	count = 0;
+	while (*str)
+	{
+		count++;
+		str++;
+	}
+	return (count);
+}
+
+
+char	*ft_read_line(int fd)
+{
+	char *str;
+
+	str = (char *)malloc(sizeof(char) * (BUFF + 1));
+	if(str == NULL)
+		return (NULL);
+	if(read(fd, str, BUFF) == -1)
+		return(NULL);
+	return (str);
+}
+
+
+char	*ft_strchr(char *str)
+{
+	int count;
+
+	count = BUFF;
+	while (count-- > 0)
+	{
+		if (*str == '\n')
+			return (str);
+		str++;
+	}
+	return (NULL);
+}
+
+int	ft_strcpy(char *dest, char *src, size_t size)
+{
+	if (src == NULL)
+		return (0);
+	if (size == 0)
+		return (0);
+	while (*src && size > 0)
+	{
+		*dest = *src;
+		dest++;
+		src++;
+		size--;
+	}
+	return (0);
+}
+
+// char	*ft_eof()
+
 int	get_next_line(int fd, char **line)
 {
-	int		check = 0;
-	int		buff = 3;
-	int		temp_buff;
-	char	temp[buff];
-	int		ind = 0;
+	char *temp;
+	char *null;
+	static char	*res;
+	int ind;
 
-	temp_buff = buff;
-	while(check++ != 5)
+	ind = 0;
+	temp = "1";
+	while(*line != NULL)
 	{
-		read(fd, temp, buff);
-		while(temp[ind] != '\n' && temp[ind] != '\0')
+		temp = ft_read_line(fd);
+		null = ft_strchr(temp);
+		if(null == NULL)
 		{
-			char ddd = temp[ind];
-			temp_buff--;
-			ind++;
+			ft_strcpy(line[0] + ind, temp, BUFF);
+			ind += BUFF;
 		}
-		ind = 0;
-		temp_buff = buff;
-		printf("%s ", temp);
+		else
+		{
+			ft_strcpy(line[0] + ind, temp, null - temp);
+			ind += null - temp;
+			line[0][ind] = '\0';
+			return(1);
+		}
 	}
-
-
-	return 0;
+	line[0][ind] = '\0';
+	return(0);
 }
+
+
 
 int main(int argc, char **argv)
 {
 	int fd;
 	char **test;
+	test = malloc(sizeof(char *) * 2);
+	test[0] = (char *)malloc(sizeof(char) * 100);
 	fd = open(argv[1], O_RDONLY);
-	fd = get_next_line(fd, test);
+	get_next_line(fd, test);
 	return 0;
 }
