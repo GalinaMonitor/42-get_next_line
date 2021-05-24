@@ -1,53 +1,12 @@
 #include "get_next_line.h"
 
-size_t	ft_strlen(char *str)
-{
-	size_t	count;
-
-	count = 0;
-	while (*str)
-	{
-		count++;
-		str++;
-	}
-	return (count);
-}
-
-
-char	*ft_read_line(int fd)
-{
-	char *str;
-
-	str = (char *)malloc(sizeof(char) * (BUFF + 1));
-	if(str == NULL)
-		return (NULL);
-	if(read(fd, str, BUFF) == -1)
-		return(NULL);
-	return (str);
-}
-
-
-char	*ft_strchr(char *str)
-{
-	int count;
-
-	count = BUFF;
-	while (count-- > 0)
-	{
-		if (*str == '\n')
-			return (str);
-		str++;
-	}
-	return (NULL);
-}
-
-int	ft_strcpy(char *dest, char *src, size_t size)
+int	ft_strcpy(char *dest, char *src, int size)
 {
 	if (src == NULL)
 		return (0);
 	if (size == 0)
 		return (0);
-	while (*src && size > 0)
+	while (size > 0)
 	{
 		*dest = *src;
 		dest++;
@@ -57,47 +16,62 @@ int	ft_strcpy(char *dest, char *src, size_t size)
 	return (0);
 }
 
-// char	*ft_eof()
-
 int	get_next_line(int fd, char **line)
 {
 	char *temp;
 	char *null;
-	static char	*res;
+	static char	*res[1024]; ///CHECK
 	int ind;
 
 	ind = 0;
 	temp = "1";
-	while(*line != NULL)
+	while(temp != NULL)
 	{
-		temp = ft_read_line(fd);
-		null = ft_strchr(temp);
-		if(null == NULL)
+		if(res[fd])
 		{
-			ft_strcpy(line[0] + ind, temp, BUFF);
-			ind += BUFF;
+			temp = ft_strjoin(res[fd], ft_read_line(fd));
+			free(res[fd]);
+			res[fd] = NULL;
+			null = ft_strchr(temp, ft_strlen(temp));
 		}
 		else
 		{
+			temp = ft_read_line(fd);
+			null = ft_strchr(temp, BUFFER_SIZE);
+		}
+		if(null == NULL)
+		{
+			ft_strcpy(line[0] + ind, temp, ft_strlen(temp));
+			ind += ft_strlen(temp);
+		}
+		else if(*null == '\0')
+		{
+			ft_strcpy(line[0] + ind, temp, null - temp);
+			return(0);
+		}
+		else
+		{
+			*null = '\0';
+			res[fd] = ft_strdup(null + 1);
 			ft_strcpy(line[0] + ind, temp, null - temp);
 			ind += null - temp;
 			line[0][ind] = '\0';
 			return(1);
 		}
 	}
-	line[0][ind] = '\0';
-	return(0);
+	return(-1);
 }
-
-
-
 int main(int argc, char **argv)
 {
+	(void)argc;
 	int fd;
 	char **test;
 	test = malloc(sizeof(char *) * 2);
 	test[0] = (char *)malloc(sizeof(char) * 100);
 	fd = open(argv[1], O_RDONLY);
-	get_next_line(fd, test);
+	while(get_next_line(fd, test) != 0)
+	{
+		printf("%s\n", test[0]);
+	}
 	return 0;
 }

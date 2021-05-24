@@ -2,3 +2,8 @@
 a.exe
 get_next_line.exe
 ggg.exe
+GNL*
+gnl*
+a.out*
+.DS_Store
+.vscode/settings.json
