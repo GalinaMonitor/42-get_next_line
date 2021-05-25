@@ -27,39 +27,41 @@ int	get_next_line(int fd, char **line)
 	char *null;
 	static char	*res[1024]; ///CHECK
 	int ind;
+	int check;
+	int reader;
 
+	reader = 1;
 	ind = 0;
 	temp = "1";
-	while(temp != NULL && line != NULL)
+
+	while(reader != 0)
 	{
-		if(res[fd])
+		if(!res[fd])
 		{
-			temp = ft_strjoin(res[fd], ft_read_line(fd));
-			free(res[fd]);
-			res[fd] = NULL;
-			null = ft_strchr(temp, ft_strlen(temp));
+			res[fd] = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+			if(res[fd] == NULL)
+				return (-1);
+			reader = read(fd, res[fd], BUFFER_SIZE);
+			if(reader == -1)
+				return(-1);
+			res[fd][BUFFER_SIZE] = '\0';
 		}
-		else
+		null = ft_strchr(res[fd]);
+		if(null == NULL && reader != 0)
 		{
-			temp = ft_read_line(fd);
-			null = ft_strchr(temp, BUFFER_SIZE);
-		}
-		if(null == NULL)
-		{
-			ft_strcpy(line[0] + ind, temp, ft_strlen(temp));
+			line[0] + ind = ft_strdup(res[fd]);
 			ind += ft_strlen(temp);
 		}
-		else if(*null == '\0')
+		else if(*null == '\0' && reader != 0)
 		{
-			ft_strcpy(line[0] + ind, temp, null - temp);
-			line[0][ind] = '\0';
+			line[0][ind] = ft_strdup(res[fd]);
 			// free(temp);
 			return(0);
 		}
-		else
+		else if(reader != 0)
 		{
 			res[fd] = ft_strdup(null + 1);
-			ft_strcpy(line[0] + ind, temp, null - temp);
+			ft_strcpy(line[0] + ind, res[fd], null - res[fd]);
 			ind += null - temp;
 			line[0][ind] = '\0';
 			// free(temp);
@@ -67,8 +69,9 @@ int	get_next_line(int fd, char **line)
 		}
 	}
 	// free(temp);
-	return(-1);
+	return(0);
 }
+
 int main(int argc, char **argv)
 {
 	(void)argc;
@@ -81,5 +84,6 @@ int main(int argc, char **argv)
 	{
 		printf("%s\n", test[0]);
 	}
+	printf("%s\n", test[0]);
 	return 0;
 }

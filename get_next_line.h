@@ -7,10 +7,10 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#define BUFFER_SIZE 1
+#define BUFFER_SIZE 100000000
 int	ft_strlen(char *str);
 char	*ft_read_line(int fd);
-char	*ft_strchr(char *str, int size);
+char	*ft_strchr(char *str);
 char	*ft_strdup(char *s);
 char	*ft_strjoin(char *s1, char *s2);
 int	get_next_line(int fd, char **line);

@@ -27,9 +27,9 @@ char	*ft_read_line(int fd)
 }
 
 
-char	*ft_strchr(char *str, int count)
+char	*ft_strchr(char *str)
 {
-	while (count-- > 0)
+	while (*str)
 	{
 		if (*str == '\n' || *str == '\0')
 			return (str);
@@ -41,8 +41,8 @@ char	*ft_strchr(char *str, int count)
 
 char	*ft_strdup(char *s)
 {
-	int	size;
 	char	*str;
+	int size;
 
 	size = ft_strlen(s);
 	if (size == 0)
