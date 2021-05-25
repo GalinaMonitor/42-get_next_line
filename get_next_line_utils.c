@@ -17,11 +17,12 @@ char	*ft_read_line(int fd)
 {
 	char *str;
 
-	str = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	str = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if(str == NULL)
 		return (NULL);
 	if(read(fd, str, BUFFER_SIZE) == -1)
 		return(NULL);
+	str[BUFFER_SIZE] = '\0';
 	return (str);
 }
 
@@ -30,15 +31,12 @@ char	*ft_strchr(char *str, int count)
 {
 	while (count-- > 0)
 	{
-		if (*str == '\n')
+		if (*str == '\n' || *str == '\0')
 			return (str);
-		else if (*str == '\0')
-		{
-			return (str);
-		}
 		str++;
 	}
 	return (NULL);
+
 }
 
 char	*ft_strdup(char *s)
@@ -47,11 +45,13 @@ char	*ft_strdup(char *s)
 	char	*str;
 
 	size = ft_strlen(s);
-	str = (char *)malloc(sizeof(char) * (size + 1));
+	if (size == 0)
+		return (NULL);
+	str = malloc(sizeof(char) * (size + 1));
 	if (str == NULL)
 		return (NULL);
 	ft_strcpy(str, s, size + 1);
-	// str[size] = '\0';
+	str[size] = '\0';
 	return (str);
 }
 
@@ -65,7 +65,7 @@ char	*ft_strjoin(char *s1, char *s2)
 		return (NULL);
 	count_s1 = ft_strlen(s1);
 	count_s2 = BUFFER_SIZE;
-	dest = (char *)malloc((count_s1 + count_s2 + 1) * sizeof(char));
+	dest = malloc((count_s1 + count_s2 + 1) * sizeof(char));
 	if (dest == NULL)
 		return (NULL);
 	ft_strcpy(dest, s1, count_s1 + 1);

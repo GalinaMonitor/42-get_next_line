@@ -1,5 +1,8 @@
 #include "get_next_line.h"
 
+
+#include <string.h>
+
 int	ft_strcpy(char *dest, char *src, int size)
 {
 	if (src == NULL)
@@ -18,6 +21,8 @@ int	ft_strcpy(char *dest, char *src, int size)
 
 int	get_next_line(int fd, char **line)
 {
+	if(fd >= 1024 || fd < 0 || line == NULL)
+		return(-1);
 	char *temp;
 	char *null;
 	static char	*res[1024]; ///CHECK
@@ -25,7 +30,7 @@ int	get_next_line(int fd, char **line)
 
 	ind = 0;
 	temp = "1";
-	while(temp != NULL)
+	while(temp != NULL && line != NULL)
 	{
 		if(res[fd])
 		{
@@ -47,18 +52,21 @@ int	get_next_line(int fd, char **line)
 		else if(*null == '\0')
 		{
 			ft_strcpy(line[0] + ind, temp, null - temp);
+			line[0][ind] = '\0';
+			// free(temp);
 			return(0);
 		}
 		else
 		{
-			*null = '\0';
 			res[fd] = ft_strdup(null + 1);
 			ft_strcpy(line[0] + ind, temp, null - temp);
 			ind += null - temp;
 			line[0][ind] = '\0';
+			// free(temp);
 			return(1);
 		}
 	}
+	// free(temp);
 	return(-1);
 }
 int main(int argc, char **argv)
@@ -67,8 +75,8 @@ int main(int argc, char **argv)
 	int fd;
 	char **test;
 	test = malloc(sizeof(char *) * 2);
-	test[0] = (char *)malloc(sizeof(char) * 100);
-	fd = open(argv[1], O_RDONLY);
+	test[0] = malloc(sizeof(char) * 1000000000000);
+	fd = open(argv[1], O_RDWR);
 	while(get_next_line(fd, test) != 0)
 	{
 		printf("%s\n", test[0]);

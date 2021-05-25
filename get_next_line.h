@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#define BUFFER_SIZE 30
+#define BUFFER_SIZE 1
 int	ft_strlen(char *str);
 char	*ft_read_line(int fd);
 char	*ft_strchr(char *str, int size);
