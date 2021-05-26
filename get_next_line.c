@@ -69,6 +69,8 @@ char	*ft_strjoin(char *s1, char *s2)
 	if (s1 == NULL)
 		return (s2);
 	count_s1 = ft_strlen(s1);
+	if (count_s1 == 0)
+		return (s2);
 	count_s2 = BUFFER_SIZE;
 	dest = malloc((count_s1 + count_s2 + 1) * sizeof(char));
 	if (dest == NULL)
@@ -163,23 +165,26 @@ char	*ft_save(char *buff)
 int	get_next_line(int fd, char **line)
 {
 	char *temp;
-	static char	*buff[1024];
+	static char	*buff[OPEN_MAX]; //check
 	int ind;
 	int text;
 
+	if (fd > OPEN_MAX || fd < 0 || line == NULL)
+		return (-1);
 	text = 1;
 	while (!ft_check_buff(buff[fd]) && text == 1)
 	{
 		temp = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+		if (temp == NULL)
+			return (-1);
 		text = read(fd, temp, BUFFER_SIZE);
-		if(text == 0)
-			return (0);
 		temp[BUFFER_SIZE] = '\0';
 		buff[fd] = ft_strjoin(buff[fd], temp);
 	}
 	line[0] = ft_strcut(buff[fd]);
 	buff[fd] = ft_save(buff[fd]);
-
+	if (text == 0)
+		return 0;
 	return (1);
 }
 
@@ -195,6 +200,6 @@ int main(int argc, char **argv)
 	{
 		printf("%s", test);
 	}
-	printf("%s", test);
+	// printf("%s", test);
 	return 0;
 }

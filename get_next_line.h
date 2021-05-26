@@ -6,7 +6,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <limits.h>
 
+#define OPEN_MAX 1024
 #define BUFFER_SIZE 100000000
 int	ft_strlen(char *str);
 char	*ft_read_line(int fd);
