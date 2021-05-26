@@ -3,6 +3,85 @@
 
 #include <string.h>
 
+int	ft_strlen(char *str)
+{
+	int	count;
+
+	count = 0;
+	while (*str)
+	{
+		count++;
+		str++;
+	}
+	return (count);
+}
+
+char	*ft_read_line(int fd)
+{
+	char *str;
+
+	str = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if(str == NULL)
+		return (NULL);
+	if(read(fd, str, BUFFER_SIZE) == -1)
+		return(NULL);
+	str[BUFFER_SIZE] = '\0';
+	return (str);
+}
+
+
+char	*ft_strchr(char *str)
+{
+	while (*str)
+	{
+		if (*str == '\n' || *str == '\0')
+			return (str);
+		str++;
+	}
+	return (NULL);
+
+}
+
+char	*ft_strdup(char *s)
+{
+	char	*str;
+	int size;
+
+	size = ft_strlen(s);
+	if (size == 0)
+		return (NULL);
+	str = malloc(sizeof(char) * (size + 1));
+	if (str == NULL)
+		return (NULL);
+	ft_strcpy(str, s, size + 1);
+	str[size] = '\0';
+	return (str);
+}
+
+
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	int		count_s1;
+	int		count_s2;
+	char	*dest;
+
+	if (s1 == NULL)
+		return (s2);
+	count_s1 = ft_strlen(s1);
+	count_s2 = BUFFER_SIZE;
+	dest = malloc((count_s1 + count_s2 + 1) * sizeof(char));
+	if (dest == NULL)
+		return (NULL);
+	ft_strcpy(dest, s1, count_s1 + 1);
+	dest += count_s1;
+	*dest = '1';
+	ft_strcpy(dest, s2, count_s2 + 1);
+	dest -= count_s1;
+	return (dest);
+}
+
+
 int	ft_strcpy(char *dest, char *src, int size)
 {
 	if (src == NULL)
@@ -19,71 +98,103 @@ int	ft_strcpy(char *dest, char *src, int size)
 	return (0);
 }
 
+
+int	ft_check_buff(char *buff)
+{
+	while (buff && *buff)
+	{
+		if (*buff == '\n')
+			return (1);
+		buff++;
+	}
+	return (0);
+}
+
+
+
+char	*ft_strcut(char *buff)
+{
+	int ind;
+	char *res;
+
+	ind = 0;
+	while (buff[ind] != '\n')
+	{
+		ind++;
+	}
+	res = malloc(sizeof(char) * (ind + 1));
+	if (res == NULL)
+		return (NULL);
+	ind = 0;
+	while (buff[ind] != '\n')
+	{
+		res[ind] = buff[ind];
+		ind++;
+	}
+	res[ind] = '\0';
+	return (res);
+}
+
+char	*ft_save(char *buff)
+{
+	int ind;
+	char *res;
+
+	ind = 0;
+	while (buff[ind] != '\n')
+		ind++;
+	ind++;
+	res = malloc(sizeof(char) * (ft_strlen(buff + ind) + 1));
+	buff+= ind;
+	ind = 0;
+	while (*buff)
+	{
+		res[ind] = *buff++;
+		ind++;
+	}
+	res[ind] = '\0';
+	free(buff);
+	return (res);
+}
+
+
+
+
 int	get_next_line(int fd, char **line)
 {
-	if(fd >= 1024 || fd < 0 || line == NULL)
-		return(-1);
 	char *temp;
-	char *null;
-	static char	*res[1024]; ///CHECK
+	static char	*buff[1024];
 	int ind;
-	int check;
-	int reader;
+	int text;
 
-	reader = 1;
-	ind = 0;
-	temp = "1";
-
-	while(reader != 0)
+	text = 1;
+	while (!ft_check_buff(buff[fd]) && text == 1)
 	{
-		if(!res[fd])
-		{
-			res[fd] = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-			if(res[fd] == NULL)
-				return (-1);
-			reader = read(fd, res[fd], BUFFER_SIZE);
-			if(reader == -1)
-				return(-1);
-			res[fd][BUFFER_SIZE] = '\0';
-		}
-		null = ft_strchr(res[fd]);
-		if(null == NULL && reader != 0)
-		{
-			line[0] + ind = ft_strdup(res[fd]);
-			ind += ft_strlen(temp);
-		}
-		else if(*null == '\0' && reader != 0)
-		{
-			line[0][ind] = ft_strdup(res[fd]);
-			// free(temp);
-			return(0);
-		}
-		else if(reader != 0)
-		{
-			res[fd] = ft_strdup(null + 1);
-			ft_strcpy(line[0] + ind, res[fd], null - res[fd]);
-			ind += null - temp;
-			line[0][ind] = '\0';
-			// free(temp);
-			return(1);
-		}
+		temp = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+		text = read(fd, temp, BUFFER_SIZE);
+		if(text == 0)
+			return (0);
+		temp[BUFFER_SIZE] = '\0';
+		buff[fd] = ft_strjoin(buff[fd], temp);
 	}
-	// free(temp);
-	return(0);
+	line[0] = ft_strcut(buff[fd]);
+	buff[fd] = ft_save(buff[fd]);
+
+	return (1);
 }
+
+
 
 int main(int argc, char **argv)
 {
 	(void)argc;
 	int fd;
-	char **test;
-	test = malloc(sizeof(char *) * 2);
-	test[0] = malloc(sizeof(char) * 1000000000000);
+	char *test;
 	fd = open(argv[1], O_RDWR);
-	while(get_next_line(fd, test) != 0)
+	while(get_next_line(fd, &test) != 0)
 	{
-		printf("%s\n", test[0]);
+		printf("%s", test);
 	}
-	printf("%s\n", test[0]);
+	printf("%s", test);
 	return 0;
 }
