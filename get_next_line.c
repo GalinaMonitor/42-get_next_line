@@ -39,25 +39,7 @@ char	*ft_strchr(char *str)
 		str++;
 	}
 	return (NULL);
-
 }
-
-char	*ft_strdup(char *s)
-{
-	char	*str;
-	int size;
-
-	size = ft_strlen(s);
-	if (size == 0)
-		return (NULL);
-	str = malloc(sizeof(char) * (size + 1));
-	if (str == NULL)
-		return (NULL);
-	ft_strcpy(str, s, size + 1);
-	str[size] = '\0';
-	return (str);
-}
-
 
 
 char	*ft_strjoin(char *s1, char *s2)
@@ -80,6 +62,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	*dest = '1';
 	ft_strcpy(dest, s2, count_s2 + 1);
 	dest -= count_s1;
+	free(s2);
 	return (dest);
 }
 
@@ -120,7 +103,9 @@ char	*ft_strcut(char *buff)
 	char *res;
 
 	ind = 0;
-	while (buff[ind] != '\n')
+	if (buff == NULL)
+		return (NULL);
+	while (buff[ind] != '\n' && buff[ind] != '\0')
 	{
 		ind++;
 	}
@@ -128,7 +113,7 @@ char	*ft_strcut(char *buff)
 	if (res == NULL)
 		return (NULL);
 	ind = 0;
-	while (buff[ind] != '\n')
+	while (buff[ind] != '\n' && buff[ind] != '\0')
 	{
 		res[ind] = buff[ind];
 		ind++;
@@ -140,22 +125,25 @@ char	*ft_strcut(char *buff)
 char	*ft_save(char *buff)
 {
 	int ind;
+	int ind2;
 	char *res;
 
+	if(buff == NULL)
+		return (NULL);
 	ind = 0;
-	while (buff[ind] != '\n')
+	ind2 = 0;
+	while (buff[ind] != '\n' && buff[ind] != '\0')
 		ind++;
 	ind++;
-	res = malloc(sizeof(char) * (ft_strlen(buff + ind) + 1));
-	buff+= ind;
-	ind = 0;
-	while (*buff)
+	res = malloc(sizeof(char) * (ft_strlen(buff + ind) + 2));
+	while (buff[ind])
 	{
-		res[ind] = *buff++;
+		res[ind2] = buff[ind];
 		ind++;
+		ind2++;
 	}
-	res[ind] = '\0';
 	free(buff);
+	res[ind2] = '\0';
 	return (res);
 }
 
@@ -166,20 +154,21 @@ int	get_next_line(int fd, char **line)
 {
 	char *temp;
 	static char	*buff[OPEN_MAX]; //check
-	int ind;
+	// int ind;
 	int text;
 
 	if (fd > OPEN_MAX || fd < 0 || line == NULL)
 		return (-1);
 	text = 1;
-	while (!ft_check_buff(buff[fd]) && text == 1)
+	while (ft_check_buff(buff[fd]) != 1 && text >= 1)
 	{
 		temp = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		if (temp == NULL)
 			return (-1);
 		text = read(fd, temp, BUFFER_SIZE);
-		temp[BUFFER_SIZE] = '\0';
+		temp[text] = '\0';
 		buff[fd] = ft_strjoin(buff[fd], temp);
+
 	}
 	line[0] = ft_strcut(buff[fd]);
 	buff[fd] = ft_save(buff[fd]);
@@ -190,16 +179,14 @@ int	get_next_line(int fd, char **line)
 
 
 
-int main(int argc, char **argv)
-{
-	(void)argc;
-	int fd;
-	char *test;
-	fd = open(argv[1], O_RDWR);
-	while(get_next_line(fd, &test) != 0)
-	{
-		printf("%s", test);
-	}
-	// printf("%s", test);
-	return 0;
-}
+// int main(int argc, char **argv)
+// {
+// 	(void)argc;
+// 	int fd;
+// 	char *test;
+// 	fd = open(argv[1], O_RDWR);
+// 	while(get_next_line(fd, &test) != 0)
+// 		printf("%s\n", test);
+// 	printf("%s\n", test);
+// 	return 0;
+// }
