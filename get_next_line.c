@@ -134,8 +134,13 @@ char	*ft_save(char *buff)
 	ind2 = 0;
 	while (buff[ind] != '\n' && buff[ind] != '\0')
 		ind++;
+	if (buff[ind] == '\0')
+	{
+		free(buff);
+		return (NULL);
+	}
 	ind++;
-	res = malloc(sizeof(char) * (ft_strlen(buff + ind) + 2));
+	res = malloc(sizeof(char) * (ft_strlen(buff + ind) + 1));
 	while (buff[ind])
 	{
 		res[ind2] = buff[ind];
@@ -148,7 +153,23 @@ char	*ft_save(char *buff)
 }
 
 
+	char	*ft_calloc(size_t count, size_t size)
+ {
+ 	char			*dst;
+ 	unsigned int	total;
+ 	unsigned int	i;
 
+ 	total = count * size;
+ 	if (!(dst = malloc(total)))
+ 		return (NULL);
+ 	i = 0;
+ 	while (total--)
+ 	{
+ 		dst[i] = '\0';
+ 		i++;
+ 	}
+ 	return (dst);
+ }
 
 int	get_next_line(int fd, char **line)
 {
@@ -162,17 +183,22 @@ int	get_next_line(int fd, char **line)
 	text = 1;
 	while (ft_check_buff(buff[fd]) != 1 && text >= 1)
 	{
-		temp = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+		temp = ft_calloc(sizeof(char), (BUFFER_SIZE + 1));
 		if (temp == NULL)
 			return (-1);
 		text = read(fd, temp, BUFFER_SIZE);
 		temp[text] = '\0';
+		if (buff[fd] != NULL)
+			free(buff[fd]);
 		buff[fd] = ft_strjoin(buff[fd], temp, text);
 	}
 	line[0] = ft_strcut(buff[fd]);
 	buff[fd] = ft_save(buff[fd]);
 	if (text == 0)
-		return 0;
+	{
+		free(buff[fd]);
+		return (0);
+	}
 	return (1);
 }
 
