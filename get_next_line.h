@@ -14,7 +14,7 @@ int	ft_strlen(char *str);
 char	*ft_read_line(int fd);
 char	*ft_strchr(char *str);
 char	*ft_strdup(char *s);
-char	*ft_strjoin(char *s1, char *s2);
+char	*ft_strjoin(char *s1, char *s2, int dlina);
 int	get_next_line(int fd, char **line);
 int	ft_strcpy(char *dest, char *src, int size);
 

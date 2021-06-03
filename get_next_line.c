@@ -42,7 +42,7 @@ char	*ft_strchr(char *str)
 }
 
 
-char	*ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin(char *s1, char *s2, int dlina)
 {
 	int		count_s1;
 	int		count_s2;
@@ -53,7 +53,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	count_s1 = ft_strlen(s1);
 	if (count_s1 == 0)
 		return (s2);
-	count_s2 = BUFFER_SIZE;
+	count_s2 = dlina;
 	dest = malloc((count_s1 + count_s2 + 1) * sizeof(char));
 	if (dest == NULL)
 		return (NULL);
@@ -153,11 +153,11 @@ char	*ft_save(char *buff)
 int	get_next_line(int fd, char **line)
 {
 	char *temp;
-	static char	*buff[OPEN_MAX]; //check
+	static char	*buff[256]; //check
 	// int ind;
 	int text;
 
-	if (fd > OPEN_MAX || fd < 0 || line == NULL)
+	if (fd > 256 || fd < 0 || line == NULL)
 		return (-1);
 	text = 1;
 	while (ft_check_buff(buff[fd]) != 1 && text >= 1)
@@ -167,8 +167,7 @@ int	get_next_line(int fd, char **line)
 			return (-1);
 		text = read(fd, temp, BUFFER_SIZE);
 		temp[text] = '\0';
-		buff[fd] = ft_strjoin(buff[fd], temp);
-
+		buff[fd] = ft_strjoin(buff[fd], temp, text);
 	}
 	line[0] = ft_strcut(buff[fd]);
 	buff[fd] = ft_save(buff[fd]);
